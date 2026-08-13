@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isSeller(sellerId) {
+      return isSignedIn() && request.auth.uid == sellerId;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.email is string;
+      allow delete: if isOwner(userId);
+    }
+
+    // Marketplace Listings
+    match /listings/{listingId} {
+      // Anyone can read marketplace listings
+      allow read: if true;
+
+      // Authenticated students can create listings
+      allow create: if isSignedIn()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 150
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 3000
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.category in ['Books', 'Electronics', 'Furniture', 'Stationery', 'Clothing', 'Accessories', 'Other']
+        && request.resource.data.condition in ['New', 'Like New', 'Good', 'Fair', 'Used'];
+
+      // Only the listing owner can update their listing
+      allow update: if isSeller(resource.data.sellerId)
+        && request.resource.data.sellerId == resource.data.sellerId
+        && request.resource.data.title is string
+        && request.resource.data.price is number;
+
+      // Only the listing owner can delete their listing
+      allow delete: if isSeller(resource.data.sellerId);
+    }
+  }
+}

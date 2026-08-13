@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Represents a student registered on Student Market",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "createdAt"]
+    },
+    "Listing": {
+      "title": "Marketplace Listing",
+      "description": "Item posted for sale by a student",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 3000 },
+        "price": { "type": "number" },
+        "category": { 
+          "type": "string",
+          "enum": ["Books", "Electronics", "Furniture", "Stationery", "Clothing", "Accessories", "Other"]
+        },
+        "condition": {
+          "type": "string",
+          "enum": ["New", "Like New", "Good", "Fair", "Used"]
+        },
+        "images": {
+          "type": "array"
+        },
+        "sellerId": { "type": "string" },
+        "sellerName": { "type": "string" },
+        "sellerPhotoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "description", "price", "category", "condition", "sellerId", "sellerName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Public and private student profile information"
+    },
+    "/listings/{listingId}": {
+      "schema": { "$ref": "#/entities/Listing" },
+      "description": "Marketplace item listings"
+    }
+  }
+}
