@@ -1,0 +1,6 @@
+{
+  "name": "Sync-UVCE",
+  "description": "Student Portal & Marketplace for UVCE students",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
